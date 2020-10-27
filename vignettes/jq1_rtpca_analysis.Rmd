@@ -1,0 +1,45 @@
+---
+title: "Untitled"
+author: "Nils Kurzawa"
+date: "10/27/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(TPP)
+library(Rtpca)
+```
+
+```{r}
+config_file <- "../data/TPP-TR_config_HepG2_JQ1.xlsx"
+```
+
+```{r}
+tpp_exp <-  tpptrImport(configTable = config_file)
+tpp_norm <- tpptrNormalize(tpp_exp)
+```
+
+```{r}
+data("string_ppi_df")
+string_ppi_975_df <- string_ppi_df %>% 
+    filter(combined_score >= 975)
+    
+diff_rtpca <- runDiffTPCA(
+    objList = tpp_norm$normData[1:2],
+    contrastList = tpp_norm$normData[3:4],
+    ctrlCondName = "Vehicle",
+    contrastCondName = "JQ1 (15um)",
+    ppiAnno = string_ppi_975_df
+)
+
+plotDiffTpcaVolcano(diff_rtpca)
+```
+
+```{r}
+plotPPiProfiles(diff_rtpca, pair = c("ERCC1", "RPA1"))
+```
+
